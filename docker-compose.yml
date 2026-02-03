@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  emg-gesture-app:
+    build:
+      context: .
+      target: development
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount for development hot-reload
+      - ./src:/app/src:ro
+      - ./templates:/app/templates:ro
+      - ./static:/app/static:ro
+      # Mount data for training
+      - ./data:/app/data:ro
+      # Persist trained models
+      - emg-models:/app/models
+    environment:
+      - FLASK_DEBUG=1
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/api/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  emg-models:
+    driver: local
